@@ -1,0 +1,32 @@
+{
+  "name": "koa-front-matter-views",
+  "version": "1.0.0",
+  "description": "Koa.js middlemare for rendering pages with layouts and page contents with front matter. Supports ejs template engine.",
+  "main": "index.js",
+  "directories": {
+    "example": "example"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/petermoresi/koa-front-matter-views.git"
+  },
+  "keywords": [
+    "Koa.js"
+  ],
+  "author": "Peter W Moresi",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/petermoresi/koa-front-matter-views/issues"
+  },
+  "homepage": "https://github.com/petermoresi/koa-front-matter-views#readme",
+  "peerDependencies": {
+    "koa": "1.x"
+  },
+  "dependencies": {
+    "ejs": "^2.4.1",
+    "gray-matter": "^2.0.2"
+  }
+}
