@@ -10,4 +10,4 @@ npm install --save koa-front-matter-views
 
 ## usage
 
-See [examples](./examples)
+See [example](./example)
