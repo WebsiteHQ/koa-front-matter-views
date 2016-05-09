@@ -24,11 +24,13 @@ ejs = require('ejs')
  */
 module.exports = (opts) => {
 
+  opts = opts || {}
+
   opts = Object.assign({}, {
     contents: opts.contents || __dirname + '/contents',       // default directory name for page contents
     layouts: opts.layouts || __dirname + '/layouts',         // default directory name for layouts
     extension: 'ejs'            // default file extension
-  }, opts || {})
+  }, opts)
 
   console.log('options: %j', opts)
   debug('options: %j', opts)
