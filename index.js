@@ -32,7 +32,6 @@ module.exports = (opts) => {
     extension: 'ejs'            // default file extension
   }, opts)
 
-  console.log('options: %j', opts)
   debug('options: %j', opts)
 
   return function* (next) {
