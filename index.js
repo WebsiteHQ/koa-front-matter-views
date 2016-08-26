@@ -1,64 +1,79 @@
 'use strict'
-
-// A middleware to render pages based on layouts and page contents.
+// A middleware to render pages based on layouts and pages.
 
 /**
 * Module dependencies.
 */
-
-const debug = require('debug')('koa-grey-matter-views'),
+const fs = require('fs'),
 dirname = require('path').dirname,
 extname = require('path').extname,
 join = require('path').join,
 resolve = require('path').resolve,
 readFileSync = require('fs').readFileSync,
 matter = require('gray-matter'),
-ejs = require('ejs')
+Remarkable = require('remarkable'),
+md = new Remarkable(),
+cons = require('consolidate')
 
 /**
- * Add `render` method.
- *
- * @param {String} path
- * @param {Object} opts (optional)
- * @api public
- */
-module.exports = (opts) => {
+* Add `view` method.
+*
+* @param {Object} opts (optional)
+* @api public
+*/
+module.exports = function(opts) {
 
   opts = opts || {}
 
   opts = Object.assign({}, {
-    contents: opts.contents || __dirname + '/contents',       // default directory name for page contents
-    layouts: opts.layouts || __dirname + '/layouts',         // default directory name for layouts
-    extension: 'ejs'            // default file extension
+    engine: opts.engine || 'handlebars',
+    pages: opts.pages ||  './pages',        // default directory name for pages
+    layouts: opts.layouts ||'./layouts'   // default directory name for layouts
   }, opts)
 
-  debug('options: %j', opts)
+  /**
+  * Render `page` with `locals`
+  *
+  * @param {String} partial
+  * @return {GeneratorFunction}
+  * @api public
+  */
+  function* view(partial) {
 
-  return function* (next) {
+    var fm, layout, contents;
 
-    if (this.render) yield next
-
-    /**
-     * Render `page` with `locals`
-     *
-     * @param {String} page
-     * @param {Object} locals
-     * @return {GeneratorFunction}
-     * @api public
-     */
-    this.render = function (page, locals) {
-      if (locals == null) {
-        locals = {}
-      }
-
-      let ext = (extname(page) || '.' + opts.extension).slice(1),
-      fm = matter.read( opts.contents + '/' + page + '.' + ext ),
-      contents = ejs.render(fm.content, locals),
-      layout = readFileSync(opts.layouts + '/' + fm.data.layout + '.ejs').toString()
-
-      return ejs.render(layout, Object.assign({}, locals, fm.data, { contents }))
+    if (fs.existsSync(join(opts.pages, partial) + '.md')) {
+      fm = matter.read(join(opts.pages, partial) + '.md')
+      contents = md.render(fm.content)
+    } else if (fs.existsSync(join(opts.pages, partial) + '.html')) {
+      fm = matter.read( join(opts.pages, partial) + '.html')
+      contents = yield cons[opts.engine].render(fm.content, {})
+    } else {
+      this.throw("Cannot find: "  + partial)
     }
 
-    yield next
+    this.body = yield cons[opts.engine](
+      join( opts.layouts, fm.data.layout),
+      Object.assign({}, fm.data, { contents: contents })
+    )
   }
+
+  return function* serve(next) {
+
+    if (!this.serveView) this.serveView = view.bind(this)
+
+    try {
+      if (this.path === '/') {
+        yield view.call(this, 'index')
+      } else {
+        yield view.call(this, this.path.substr(1))
+      }
+
+    } catch(e) {
+      console.error(e)
+      yield next;
+    }
+
+  }
+
 }
