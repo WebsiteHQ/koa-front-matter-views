@@ -42,8 +42,6 @@ module.exports = function(opts) {
 
     var fm, layout, contents;
 
-    console.log('partial', partial)
-
     if (fs.existsSync(join(opts.pages, partial) + '.md')) {
       fm = matter.read(join(opts.pages, partial) + '.md')
       contents = md.render(fm.content)
@@ -76,7 +74,6 @@ module.exports = function(opts) {
       }
 
     } catch(e) {
-      console.error(e)
       yield next;
     }
 
