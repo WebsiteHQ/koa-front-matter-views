@@ -42,6 +42,8 @@ module.exports = function(opts) {
 
     var fm, layout, contents;
 
+    console.log('partial', partial)
+
     if (fs.existsSync(join(opts.pages, partial) + '.md')) {
       fm = matter.read(join(opts.pages, partial) + '.md')
       contents = md.render(fm.content)
@@ -66,7 +68,11 @@ module.exports = function(opts) {
       if (this.path === '/') {
         yield view.call(this, 'index')
       } else {
-        yield view.call(this, this.path.substr(1))
+        try {
+          yield view.call(this, this.path.substr(1))
+        } catch(e) {
+          yield view.call(this, this.path.substr(1) + '/index')
+        }
       }
 
     } catch(e) {
