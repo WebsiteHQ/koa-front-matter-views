@@ -28,7 +28,7 @@ module.exports = function(opts) {
   opts = Object.assign({}, {
     engine: opts.engine || 'handlebars',
     pages: opts.pages ||  './pages',        // default directory name for pages
-    layouts: opts.layouts ||'./layouts'     // default directory name for layouts
+    layouts: opts.layouts ||'./layouts',     // default directory name for layouts
     defaults: opts.defaults || {}           // default variables to pass to layout
   }, opts)
 
