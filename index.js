@@ -28,7 +28,8 @@ module.exports = function(opts) {
   opts = Object.assign({}, {
     engine: opts.engine || 'handlebars',
     pages: opts.pages ||  './pages',        // default directory name for pages
-    layouts: opts.layouts ||'./layouts'   // default directory name for layouts
+    layouts: opts.layouts ||'./layouts'     // default directory name for layouts
+    defaults: opts.defaults || {}           // default variables to pass to layout
   }, opts)
 
   /**
@@ -54,7 +55,7 @@ module.exports = function(opts) {
 
     this.body = yield cons[opts.engine](
       join( opts.layouts, fm.data.layout),
-      Object.assign({}, fm.data, { contents: contents })
+      Object.assign({}, opts.defaults, fm.data, { contents: contents })
     )
   }
 
