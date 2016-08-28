@@ -11,8 +11,8 @@ join = require('path').join,
 resolve = require('path').resolve,
 readFileSync = require('fs').readFileSync,
 matter = require('gray-matter'),
+hljs = require('highlight.js'),
 Remarkable = require('remarkable'),
-md = new Remarkable(),
 cons = require('consolidate')
 
 /**
@@ -29,8 +29,18 @@ module.exports = function(opts) {
     engine: opts.engine || 'handlebars',
     pages: opts.pages ||  './pages',        // default directory name for pages
     layouts: opts.layouts ||'./layouts',     // default directory name for layouts
-    defaults: opts.defaults || {}           // default variables to pass to layout
+    defaults: opts.defaults || {},           // default variables to pass to layout
+    markdown: Object.assign({
+      html: true,
+      highlight: function (str, lang) {
+        try {
+          return hljs.highlightAuto(str).value;
+        } catch (err) {}
+      }
+    }, opts.markdown)
   }, opts)
+
+  var md = new Remarkable(opts.markdown)
 
   /**
   * Render `page` with `locals`
