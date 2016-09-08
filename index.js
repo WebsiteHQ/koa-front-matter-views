@@ -51,21 +51,31 @@ module.exports = function(opts) {
   */
   function* view(partial) {
 
-    var fm, layout, contents;
+    var fm, layout, contents, type;
 
     if (fs.existsSync(join(opts.pages, partial) + '.md')) {
       fm = matter.read(join(opts.pages, partial) + '.md')
-      contents = md.render(fm.content)
+      type = 1
     } else if (fs.existsSync(join(opts.pages, partial) + '.html')) {
       fm = matter.read( join(opts.pages, partial) + '.html')
-      contents = yield cons[opts.engine].render(fm.content, {})
+      type = 2
     } else {
       this.throw("Cannot find: "  + partial)
     }
 
+    // render content template
+    var viewData = Object.assign({}, opts.defaults, fm.data)
+    contents = yield cons[opts.engine].render(fm.content, viewData)
+
+    // render markdown
+    if (type === 1) {
+      contents = md.render(contents)
+    }
+
+    // render layout
     this.body = yield cons[opts.engine](
       join( opts.layouts, fm.data.layout),
-      Object.assign({}, opts.defaults, fm.data, { contents: contents })
+      Object.assign({}, viewData, { contents: contents })
     )
   }
 

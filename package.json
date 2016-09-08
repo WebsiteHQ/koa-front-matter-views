@@ -1,6 +1,6 @@
 {
   "name": "koa-front-matter-views",
-  "version": "2.0.5",
+  "version": "2.0.6",
   "description": "Koa.js middlemare for rendering pages with layouts and page contents with front matter. Supports ejs template engine.",
   "main": "index.js",
   "directories": {
