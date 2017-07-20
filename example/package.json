@@ -1,6 +1,6 @@
 {
   "name": "example",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -9,7 +9,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "koa": "^1.2.0",
-    "koa-route": "^2.4.2"
+    "consolidate": "^0.14.5",
+    "handlebars": "^4.0.10",
+    "koa": "^2.x"
   }
 }

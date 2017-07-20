@@ -6,6 +6,9 @@ Koa.js middlemare for rendering pages with layouts and page content with front m
 
 ```sh
 npm install --save koa-front-matter-views
+
+# Koa 1.x
+npm install --save koa-front-matter-views@2.0.6
 ```
 
 ## usage

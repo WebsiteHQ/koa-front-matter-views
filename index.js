@@ -5,15 +5,15 @@
 * Module dependencies.
 */
 const fs = require('fs'),
-dirname = require('path').dirname,
-extname = require('path').extname,
-join = require('path').join,
-resolve = require('path').resolve,
-readFileSync = require('fs').readFileSync,
-matter = require('gray-matter'),
-hljs = require('highlight.js'),
-Remarkable = require('remarkable'),
-cons = require('consolidate')
+      dirname = require('path').dirname,
+      extname = require('path').extname,
+      join = require('path').join,
+      resolve = require('path').resolve,
+      readFileSync = require('fs').readFileSync,
+      matter = require('gray-matter'),
+      hljs = require('highlight.js'),
+      Remarkable = require('remarkable'),
+      cons = require('consolidate');
 
 /**
 * Add `view` method.
@@ -23,7 +23,7 @@ cons = require('consolidate')
 */
 module.exports = function(opts) {
 
-  opts = opts || {}
+  opts = opts || {};
 
   opts = Object.assign({}, {
     engine: opts.engine || 'handlebars',
@@ -38,9 +38,9 @@ module.exports = function(opts) {
         } catch (err) {}
       }
     }, opts.markdown)
-  }, opts)
+  }, opts);
 
-  var md = new Remarkable(opts.markdown)
+  var md = new Remarkable(opts.markdown);
 
   /**
   * Render `page` with `locals`
@@ -49,55 +49,58 @@ module.exports = function(opts) {
   * @return {GeneratorFunction}
   * @api public
   */
-  function* view(partial) {
+  async function serveView(ctx, partial) {
 
     var fm, layout, contents, type;
 
     if (fs.existsSync(join(opts.pages, partial) + '.md')) {
-      fm = matter.read(join(opts.pages, partial) + '.md')
-      type = 1
+      fm = matter.read(join(opts.pages, partial) + '.md');
+      type = 1;
     } else if (fs.existsSync(join(opts.pages, partial) + '.html')) {
-      fm = matter.read( join(opts.pages, partial) + '.html')
-      type = 2
+      fm = matter.read( join(opts.pages, partial) + '.html');
+      type = 2;
     } else {
-      this.throw("Cannot find: "  + partial)
+      ctx.throw("Cannot find: "  + partial);
     }
 
     // render content template
-    var viewData = Object.assign({}, opts.defaults, fm.data)
-    contents = yield cons[opts.engine].render(fm.content, viewData)
+    var viewData = Object.assign({}, opts.defaults, fm.data);
+    contents = await cons[opts.engine].render(fm.content, viewData);
 
     // render markdown
     if (type === 1) {
-      contents = md.render(contents)
+      contents = md.render(contents);
     }
 
     // render layout
-    this.body = yield cons[opts.engine](
+    ctx.body = await cons[opts.engine](
       join( opts.layouts, fm.data.layout),
       Object.assign({}, viewData, { contents: contents })
-    )
+    );
   }
 
-  return function* serve(next) {
 
-    if (!this.serveView) this.serveView = view.bind(this)
+  return async function serve(ctx, next) {
+
+
+    if (!ctx.serveView) ctx.serveView = async (partial) => await serveView(ctx, partial);
 
     try {
-      if (this.path === '/') {
-        yield view.call(this, 'index')
+      if (ctx.path === '/') {
+        await serveView(ctx, 'index');
       } else {
         try {
-          yield view.call(this, this.path.substr(1))
+          await serveView(ctx, ctx.path.substr(1));
         } catch(e) {
-          yield view.call(this, this.path.substr(1) + '/index')
+          await serveView(ctx, ctx.path.substr(1) + '/index');
         }
       }
 
     } catch(e) {
-      yield next;
+      console.log('VIEW ERROR', e)
+      await next;
     }
 
-  }
+  };
 
 }
